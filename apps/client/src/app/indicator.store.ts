@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   debounceTime,
+  defer,
   finalize,
   mergeMap,
   Observable,
@@ -16,7 +17,6 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { prepare } from 'ngx-operators';
 import {
   MatSnackBar,
   MatSnackBarConfig,
@@ -63,7 +63,12 @@ export function indicate<ReturnObservable, Service extends { next: Nextable }>(
 ): (source: Observable<ReturnObservable>) => Observable<ReturnObservable> {
   return (source: Observable<ReturnObservable>) =>
     source.pipe(
-      prepare(() => indicator?.next(true)),
+      (source) =>
+        defer(() => {
+          indicator?.next(true);
+
+          return source;
+        }),
       finalize(() => indicator?.next(false))
     );
 }
