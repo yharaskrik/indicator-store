@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IndicatorStore } from './indicator.store';
 
 @Component({
   selector: 'rxjs-loader-demo-root',
@@ -6,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'client';
+  constructor(private indicatorStore: IndicatorStore) {
+    setInterval(() => {
+      console.log('Interval');
+      this.indicatorStore.next(Math.random() < 0.5 ? true : false);
+    }, 1500);
+  }
 }
