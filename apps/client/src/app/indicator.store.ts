@@ -12,6 +12,7 @@ import {
   Observable,
   of,
   Subject,
+  Subscription,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -83,7 +84,7 @@ export class IndicatorStore implements OnDestroy {
 
   private readonly values$ = new Subject<boolean>();
 
-  private readonly _destroy$ = new Subject<void>();
+  private readonly _subscription: Subscription;
 
   constructor(
     private readonly matSnackBar: MatSnackBar,
@@ -93,9 +94,8 @@ export class IndicatorStore implements OnDestroy {
      * The stream of values from all the hot observables using the `indicate` pipe. As long as there are values being pushed
      * this stream the snack bar will stay open.
      */
-    this.values$
+    this._subscription = this.values$
       .pipe(
-        takeUntil(this._destroy$),
         mergeMap((value) => {
           /*
           If the value being pushed through is `true` (ie. a new hot observable is starting) then
@@ -152,8 +152,7 @@ export class IndicatorStore implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._destroy$.next();
-    this._destroy$.complete();
+    this._subscription.unsubscribe();
   }
 
   next(value: boolean): void {
